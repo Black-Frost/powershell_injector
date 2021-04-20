@@ -1,0 +1,15 @@
+#ignore every ps script, exe or asm files used for testing
+*.exe
+*.ps1
+*.idb
+*.S
+*.asm
+
+#Dummy Visual studio project to get some PE files for testing 
+exeGen/
+
+#Pycharm venv directory
+venv/
+
+#Pycharm .idea directory
+.idea/
