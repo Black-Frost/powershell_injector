@@ -4,6 +4,8 @@
 *.idb
 *.S
 *.asm
+*.o
+*.obj
 
 #Dummy Visual studio project to get some PE files for testing 
 exeGen/
