@@ -55,6 +55,7 @@ def addSection(fileName, sectionSize, injectedFile):
 
 def extractShellcode(filename):
     '''A simple COFF parser to extract the shellcode from the COFF file'''
+    '''COFF file structure: https://wiki.osdev.org/COFF'''
     with open(filename, "rb") as f:
         f.seek(16, 0)
         optionalHeaderSize = struct.unpack("<l", f.read(4))[0]
@@ -79,10 +80,8 @@ def craftShellcode(scriptPath):
     with open(scriptPath, "r") as f:
         script = f.read().strip('\n')
 
-
-    asmTemplate = '''mov eax, 1 
-                xor ecx, ecx
-                db \"%s\", 0'''
+    #Read shellcode template from file
+    asmTemplate = open("template.S", "r").read()
 
     #compile the shellcode to a COFF file then extract it
     print("[*] Compiling shellcode")

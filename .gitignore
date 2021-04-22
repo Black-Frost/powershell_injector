@@ -2,10 +2,9 @@
 *.exe
 *.ps1
 *.idb
-*.S
-*.asm
 *.o
 *.obj
+*.i64
 
 #Dummy Visual studio project to get some PE files for testing 
 exeGen/
