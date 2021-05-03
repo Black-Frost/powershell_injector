@@ -54,7 +54,7 @@ main:
 
 
 		; I really dont understand why we have to push 4 more times.
-		; A normal executable called CreateProcessA with the first parameter pushed to [rsp + 32]
+		; A normal executable calls CreateProcessA with the first parameter pushed to [rsp + 32]
 		; So I just follow that
 		push 0
 		push 0
