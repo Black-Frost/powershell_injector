@@ -5,7 +5,7 @@
 
 pre:
 	call main
-	db "%s", 0
+	db `%s`, 0
 main:
 	pop rdi
 	push rbp

